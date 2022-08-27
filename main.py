@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
-# Date: 2022/8/25
+# CreaetDate: 2022/8/17
+# UpdateDate: 2022/8/27
 # Author: M叔
-# version: '0.0.1'
+# version: '0.0.2'
 
+import re
+import os
+import shutil
 import time
 import itchat
 from itchat.content import *
@@ -20,37 +24,44 @@ from Mbot.utils.data_collection import (
 from Mbot.utils.group_helper import (
     handle_group_helper
 )
-from Mbot.utils.friend_helper import (
-    handle_friend
-)
 
+
+# from Mbot.utils.friend_helper import (
+#     handle_friend
+# )
+
+# {msg_id:(msg_from,msg_to,msg_time,msg_time_rec,msg_type,msg_content,msg_share_url)}
+msg_dict = {}
+
+# 文件临时存储页
+# rec_tmp_dir = os.path.join(os.getcwd(), 'tmp/')
+
+# 表情有一个问题 | 接受信息和接受note的msg_id不一致 巧合解决方案
+face_bug = None
 
 '''
-@itchat.msg_register([TEXT])
-def text_reply(msg):
-    """ 监听用户消息，用于自动回复 """
-    handle_friend(msg)
-'''
-
-    # 下面这段代码，可以很直观打印出返回的消息的数据结构。
-    # 把打印的数据复制到  https://www.json.cn/ 可查看详细的内容。群消息同理
-    # import json
-    # print(json.dumps(msg, ensure_ascii=False))
-
-
-@itchat.msg_register([TEXT, PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=True)
-def text_group(msg):
-    """ 监听用户消息，用于自动回复 """
-    handle_group_helper(msg)
-
-def handle_group_msg(msg):
+@itchat.msg_register([TEXT, PICTURE, RECORDING, ATTACHMENT, VIDEO], isFriendChat=True)
+def handle_friend(msg):
     msg_id = msg['MsgId']
-    msg_create_time = msg['CreateTime']
     msg_from_user = msg['User']['NickName']
     msg_content = msg['Content']
+    msg_create_time = msg['CreateTime']
     msg_type = msg['Type']
+    print("收到信息: ", msg_id, msg_from_user, msg_content, msg_create_time,msg_type)
+'''
 
-    print(msg_id,msg_create_time,msg_from_user,msg_content,msg_type)
+@itchat.msg_register([TEXT, PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=True)
+def handle_group_msg(msg):
+
+    # 获取本能地时间戳 e: 2022-08-27 21:30:08
+    msg_time_rec = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    msg_id = msg['MsgId']
+    msg_from_user = msg['ActualNickName']
+    msg_content = msg['Content']
+    msg_create_time = msg['CreateTime']
+    msg_type = msg['Type']
+    print("群聊信息: ",msg_id, ,msg_time_rec, msg_from_user, msg_content, msg_create_time, msg_type)
+
     '''
     #print(msg)
         rec_msg_dict.update({
@@ -62,7 +73,9 @@ def handle_group_msg(msg):
             'msg_content': msg_content
         }
     })
-'''
+    '''
+
+
     if u'熊猫' in msg['Content']:
         itchat.send_msg( "二货熊猫天天催更！", msg['FromUserName'])
 
@@ -70,6 +83,8 @@ def handle_group_msg(msg):
         itchat.send_msg( "能容能日，男女通吃！", msg['FromUserName'])
 
 if __name__ == '__main__':
+    if not os.path.exists(rev_tmp_dir): 
+        os.mkdir(rev_tmp_dir)
     itchat.auto_login(enableCmdQR=2,hotReload=True)
     itchat.send("文件助手你好哦", toUserName="filehelper")
     itchat.run()
