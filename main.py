@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # CreaetDate: 2022/8/17
-# UpdateDate: 2022/8/27
+# UpdateDate: 2022/8/28
 # Author: M叔
 # version: '0.0.2'
 
@@ -40,11 +40,12 @@ def handle_group_msg(msg):
     # 获取本能地时间戳 e: 2022-08-27 21:30:08
     msg_time_rec = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     msg_id = msg['MsgId']
+    msg_group_name = msg['User']['NickName']
     msg_from_user = msg['ActualNickName']
     msg_content = msg['Content']
     msg_create_time = msg['CreateTime']
     msg_type = msg['Type']
-    print("群聊信息: ",msg_id, ,msg_time_rec, msg_from_user, msg_content, msg_create_time, msg_type)
+    print("群聊信息: ",msg_id, msg_group_name ,msg_time_rec, msg_from_user, msg_content, msg_create_time, msg_type)
 
     '''
     #print(msg)
