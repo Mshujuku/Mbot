@@ -13,22 +13,6 @@ from itchat.content import *
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
-from Mbot.utils.data_collection import (
-    get_weather_info,
-    get_dictum_info,
-    get_diff_time,
-    get_calendar_info,
-    get_constellation_info
-)
-
-from Mbot.utils.group_helper import (
-    handle_group_helper
-)
-
-
-# from Mbot.utils.friend_helper import (
-#     handle_friend
-# )
 
 # {msg_id:(msg_from,msg_to,msg_time,msg_time_rec,msg_type,msg_content,msg_share_url)}
 msg_dict = {}
