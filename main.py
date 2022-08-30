@@ -45,7 +45,7 @@ def handle_group_msg(msg):
     msg_content = msg['Content']
     msg_create_time = msg['CreateTime']
     msg_type = msg['Type']
-    print("群聊信息: ",msg_id, msg_group_name ,msg_time_rec, msg_from_user, msg_content, msg_create_time, msg_type)
+    print("群聊信息: ",msg_id, msg_time_rec, msg_group_name , msg_from_user, msg_content, msg_create_time, msg_type)
 
     '''
     #print(msg)
@@ -68,8 +68,8 @@ def handle_group_msg(msg):
         itchat.send_msg( "能容能日，男女通吃！", msg['FromUserName'])
 
 if __name__ == '__main__':
-    if not os.path.exists(rev_tmp_dir): 
-        os.mkdir(rev_tmp_dir)
+    # if not os.path.exists(rev_tmp_dir): 
+    #     os.mkdir(rev_tmp_dir)
     itchat.auto_login(enableCmdQR=2,hotReload=True)
     itchat.send("文件助手你好哦", toUserName="filehelper")
     itchat.run()
