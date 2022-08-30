@@ -3,7 +3,7 @@
 # UpdateDate: 2022/8/28
 # Author: M叔
 # version: '0.0.2'
-
+import sqlite3
 import re
 import os
 import shutil
@@ -34,6 +34,8 @@ def handle_friend(msg):
     print("收到信息: ", msg_id, msg_from_user, msg_content, msg_create_time,msg_type)
 '''
 
+
+
 @itchat.msg_register([TEXT, PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=True)
 def handle_group_msg(msg):
 
@@ -59,6 +61,19 @@ def handle_group_msg(msg):
         }
     })
     '''
+    #curs.execute("INSERT INTO Idb (title, country, genre, summary, episode, end, subgroup, subgroup_from, subgroup_download, mshuyunpan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", to_db)
+    if u'$' in msg['Content']:
+        title = msg['Content'][1:]
+        conn = sqlite3.connect("db.sqlite3")
+        curs = conn.cursor()
+        cursor = curs.execute("SELECT title, mshuyunpan FROM Idb_idb WHERE title LIKE"+ "'%" + title + "%'")
+        for t in cursor:
+            print(t)
+            msgt=''.join(t)
+        itchat.send_msg(msgt, msg['FromUserName'])
+
+        curs.close()
+        conn.close()
 
 
     if u'熊猫' in msg['Content']:
