@@ -12,6 +12,10 @@ import itchat
 from itchat.content import *
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent.parent
+PARENT_DIR = BASE_DIR.parent
+DB_DIR = str(PARENT_DIR) + '/' + 'Db'
 
 
 # {msg_id:(msg_from,msg_to,msg_time,msg_time_rec,msg_type,msg_content,msg_share_url)}
@@ -38,7 +42,6 @@ def handle_friend(msg):
 
 @itchat.msg_register([TEXT, PICTURE, RECORDING, ATTACHMENT, VIDEO], isGroupChat=True)
 def handle_group_msg(msg):
-
     # 获取本能地时间戳 e: 2022-08-27 21:30:08
     msg_time_rec = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     msg_id = msg['MsgId']
@@ -47,7 +50,17 @@ def handle_group_msg(msg):
     msg_content = msg['Content']
     msg_create_time = msg['CreateTime']
     msg_type = msg['Type']
-    print("群聊信息: ",msg_id, msg_time_rec, msg_group_name , msg_from_user, msg_content, msg_create_time, msg_type)
+    #msg_text = msg['Text']
+    #print("群聊信息: ",msg_id, msg_time_rec, msg_group_name , msg_from_user, msg_content, msg_create_time, msg_type)
+    msg_list = (msg_id, msg_time_rec, msg_group_name , msg_from_user, msg_content, msg_create_time, msg_type)
+    print(msg_list)
+
+    conn = sqlite3.connect('/app/Db/db.sqlite3')
+    curs = conn.cursor()
+    curs.execute("INSERT INTO MbotDb_mbotdb (msg_id, msg_time_rec, msg_group_name , msg_from_user, msg_content, msg_create_time, msg_type) VALUES (?, ?, ?, ?, ?, ?, ?);", msg_list)
+    conn.commit()
+    curs.close()
+    conn.close()
 
     '''
     #print(msg)
@@ -64,13 +77,13 @@ def handle_group_msg(msg):
     #curs.execute("INSERT INTO Idb (title, country, genre, summary, episode, end, subgroup, subgroup_from, subgroup_download, mshuyunpan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", to_db)
     if u'$' in msg['Content']:
         title = msg['Content'][1:]
-        conn = sqlite3.connect("db.sqlite3")
+        conn = sqlite3.connect('/app/Db/db.sqlite3')
         curs = conn.cursor()
         cursor = curs.execute("SELECT title, mshuyunpan FROM Idb_idb WHERE title LIKE"+ "'%" + title + "%'")
         for t in cursor:
-            print(t)
-            msgt=''.join(t)
-        itchat.send_msg(msgt, msg['FromUserName'])
+            msgt=''.join(t) # 元组转字符串
+            time.sleep(2)
+            itchat.send_msg(msgt, msg['FromUserName'])
 
         curs.close()
         conn.close()
