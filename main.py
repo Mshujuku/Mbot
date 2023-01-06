@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # CreaetDate: 2022/8/17
-# UpdateDate: 2022/8/28
+# UpdateDate: 2023/1/4
 # Author: M叔
-# version: '0.0.2'
+# version: '0.1.5'
 import sqlite3
 import re
 import os
@@ -10,7 +10,68 @@ import shutil
 import time
 import itchat
 from itchat.content import *
-from apscheduler.schedulers.background import BackgroundScheduler
+#from apscheduler.schedulers.background import BackgroundScheduler
+
+import requests
+from requests.packages import urllib3
+import json
+import re
+
+#  关闭告警信息
+urllib3.disable_warnings()
+
+
+#   大师兄讲哲学
+def bigxiong():
+    headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'}
+    response = requests.get('https://www.btstu.cn/yan/api.php?charset=utf-8&encode=json', headers=headers, verify=False)
+    data = json.loads(response.text)
+    text = data['text']
+    return text
+
+#   yiso搜索阿里云盘
+def yiso(m):
+    headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'}
+    response = requests.get('https://yiso.fun/api/search?name=' + m, headers=headers)
+    data = json.loads(response.text)
+    lists = data['data']['list']
+    lil = []
+    for l in lists:
+        ll = l['url']
+        lil.append(ll)
+    lil = ("\n".join(lil))
+    return lil
+
+#   磁力黄片
+def cangjingkong(m):
+    headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'}
+    response = requests.get('https://www.givemetips.com/api/es/searchv2?order=0&page=1&size=10&content=' + m, headers=headers)
+    data = json.loads(response.text)
+    lists = data['data']['hashInfos']
+    lil = []
+    for l in lists:
+        ll = l['infohash']
+        lil.append('magnet:?xt=urn:btih:' + ll)
+    lil = ("\n".join(lil))
+    return lil
+
+
+#   茶杯狐在线
+def cupfox(m):
+    headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'}
+    
+    response = requests.get('https://cupfox.app/s/'+m, headers=headers)
+    html = response.text
+    re_urls = re.findall(r'"url":"https://.*?"',html)
+    lil = []
+    for xin_urls in re_urls:
+        lil.append(xin_urls.replace('"url":','').replace('"',''))
+    lil = ("\n".join(lil))
+    return lil
+
+
+
+
 
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -55,7 +116,7 @@ def handle_group_msg(msg):
     msg_list = (msg_id, msg_time_rec, msg_group_name , msg_from_user, msg_content, msg_create_time, msg_type)
     print(msg_list)
 
-    conn = sqlite3.connect('/app/Db/db.sqlite3')
+    conn = sqlite3.connect('../Db/db.sqlite3')
     curs = conn.cursor()
     curs.execute("INSERT INTO MbotDb_mbotdb (msg_id, msg_time_rec, msg_group_name , msg_from_user, msg_content, msg_create_time, msg_type) VALUES (?, ?, ?, ?, ?, ?, ?);", msg_list)
     conn.commit()
@@ -77,7 +138,7 @@ def handle_group_msg(msg):
     #curs.execute("INSERT INTO Idb (title, country, genre, summary, episode, end, subgroup, subgroup_from, subgroup_download, mshuyunpan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", to_db)
     if u'$' in msg['Content']:
         title = msg['Content'][1:]
-        conn = sqlite3.connect('/app/Db/db.sqlite3')
+        conn = sqlite3.connect('../Db/db.sqlite3')
         curs = conn.cursor()
         cursor = curs.execute("SELECT title, mshuyunpan FROM Idb_idb WHERE title LIKE"+ "'%" + title + "%'")
         for t in cursor:
@@ -90,10 +151,35 @@ def handle_group_msg(msg):
 
 
     if u'熊猫' in msg['Content']:
-        itchat.send_msg( "二货熊猫天天催更！", msg['FromUserName'])
+        itchat.send_msg( "二货熊猫没有女朋友！", msg['FromUserName'])
 
     if u'荣日' in msg['Content']:
         itchat.send_msg( "能容能日，男女通吃！", msg['FromUserName'])
+
+    if u'猴' in msg['Content']:
+        itchat.send_msg( "浴皇大帝！", msg['FromUserName'])
+        
+    if u'杨菊' in msg['Content']:
+        itchat.send_msg( "杨菊姐姐每日一色图！", msg['FromUserName'])
+
+    if u'大师兄' in msg['Content']:
+        mbigxiong = bigxiong()
+        itchat.send_msg( "著名哲学家尼古拉斯大师兄如是说：" + mbigxiong, msg['FromUserName'])
+
+    if u'#' in msg['Content']:
+        title = msg['Content'][1:]
+        time.sleep(3)
+        myiso = yiso(m=title)
+        mcupfox = cupfox(m=title)
+        itchat.send_msg(title + '阿里云盘地址' + '\n' + myiso, msg['FromUserName'])
+        itchat.send_msg(title + '在线观看地址' + '\n' + mcupfox, msg['FromUserName'])
+
+    if u'!' in msg['Content']:
+        title = msg['Content'][1:]
+        time.sleep(3)
+        mcangjingkong = cangjingkong(m=title)
+        itchat.send_msg(title + '是熊猫小哥的最爱送给你'+ '\n' + mcangjingkong, msg['FromUserName'])
+
 
 if __name__ == '__main__':
     # if not os.path.exists(rev_tmp_dir): 
